@@ -1,4 +1,4 @@
-const toolsBaseUrl = "https://247e-88-16-973-488.ngrok-free.app"; // TODO ngrok URL here
+const toolsBaseUrl = "https://01eb-73-24-191-197.ngrok-free.app"; // TODO ngrok URL here
 
 // Ultravox configuration
 
@@ -11,8 +11,10 @@ Your name is Steve. You are a virtual, AI receptionist at CCC, a local community
 
 Your job is as follows:
 1. Answer all calls with a friendly, conversational approach.
-2. Provide helpful answers to customer inquiries. Use the Q&A section below for basic questions. For more complex questions you MUST use the "infoLookup" tool. Do not make answers up!
-3. If a caller is angry or has a topic that you cannot answer, you can use the "transferCall" tool to hand-off the call to the right department.
+2. Provide helpful answers to customer inquiries. Use the Q&A section below for basic questions.
+3. Important: you must use the events section below to answer questions about upcoming events at the center.
+4. For more complex questions you MUST use the "infoLookup" tool. Do not make answers up!
+5. If a caller is angry or has a topic that you cannot answer, you can use the "transferCall" tool to hand-off the call to the right department.
 
 #Q&A
 ## CCC location and hours
@@ -24,52 +26,55 @@ The center provides full programs (lessons, leagues) for all ages in basketball,
 ## What type of space is available for events?
 The center has a large (2000 sq ft) outdoor area that can be used for weddings. Indoor space includes four breakout rooms that hold eight people each for private meetings. There is a large (4000 sq ft) ballroom for banquets, dances, etc.
 
+#EVENTS
+* Monday, January 27, 2025 - Karaoke fest from 7-9pm. All ages.
+* Thursday, January 30, 2025 - Shin Limm magic show. Cost is $50 per person. Two shows 5pm and 8pm.
 `;
 
 const selectedTools = [
-    {
-      "temporaryTool": {
-        "modelToolName": "checkAvailability",
-        "description": "Looks up available appointments on the calendar. Returns a list of available slots.",
-        "dynamicParameters": [
-            {
-              "name": "firstName",
-              "location": "PARAMETER_LOCATION_BODY",
-              "schema": {
-                "description": "The caller's first name",
-                "type": "string",
-              },
-              "required": true,
-            },
-            {
-                "name": "lastName",
-                "location": "PARAMETER_LOCATION_BODY",
-                "schema": {
-                  "description": "The caller's last name",
-                  "type": "string",
-                },
-                "required": true,
-            },
-            {
-                "name": "phoneNumber",
-                "location": "PARAMETER_LOCATION_BODY",
-                "schema": {
-                  "description": "The caller's phone number",
-                  "type": "string",
-                },
-                "required": true,
-            },
-          ],
-        "http": {
-            "baseUrlPattern": `${toolsBaseUrl}/cal/checkAvailability`,
-            "httpMethod": "POST",
-          },
-      },
-  },
+  //   {
+  //     "temporaryTool": {
+  //       "modelToolName": "checkAvailability",
+  //       "description": "Looks up available appointments on the calendar. Returns a list of available slots.",
+  //       "dynamicParameters": [
+  //           {
+  //             "name": "firstName",
+  //             "location": "PARAMETER_LOCATION_BODY",
+  //             "schema": {
+  //               "description": "The caller's first name",
+  //               "type": "string",
+  //             },
+  //             "required": true,
+  //           },
+  //           {
+  //               "name": "lastName",
+  //               "location": "PARAMETER_LOCATION_BODY",
+  //               "schema": {
+  //                 "description": "The caller's last name",
+  //                 "type": "string",
+  //               },
+  //               "required": true,
+  //           },
+  //           {
+  //               "name": "phoneNumber",
+  //               "location": "PARAMETER_LOCATION_BODY",
+  //               "schema": {
+  //                 "description": "The caller's phone number",
+  //                 "type": "string",
+  //               },
+  //               "required": true,
+  //           },
+  //         ],
+  //       "http": {
+  //           "baseUrlPattern": `${toolsBaseUrl}/cal/checkAvailability`,
+  //           "httpMethod": "POST",
+  //         },
+  //     },
+  // },
   {
     "temporaryTool": {
       "modelToolName": "transferCall",
-      "description": "Transfers call to a human. Use this to finalize booking an appointment or if there are questions you cannot answer.",
+      "description": "Transfers call to a human. Use this if a caller is upset or if there are questions you cannot answer.",
       "automaticParameters": [
         {
           "name": "callId",
@@ -97,10 +102,10 @@ const selectedTools = [
             "required": true,
         },
         {
-            "name": "phoneNumber",
+            "name": "transferReason",
             "location": "PARAMETER_LOCATION_BODY",
             "schema": {
-              "description": "The caller's phone number",
+              "description": "The reason the call is being transferred.",
               "type": "string",
             },
             "required": true,
@@ -114,8 +119,20 @@ const selectedTools = [
   },
   {
     "temporaryTool": {
-      "modelToolName": "knowledgeLookup",
-      "description": "Used to lookup information about HVAC terms, products, and how-tos. This will search a vector database and return back chunks that are semantically similar to the query.",
+      "modelToolName": "infoLookup",
+      "description": "Used to lookup information about the community center's soccer and swimming programs. This will search a vector database and return back chunks that are semantically similar to the query.",
+      "staticParameters": [
+        {
+          "name": "corpusId",
+          "location": "PARAMETER_LOCATION_BODY",
+          "value": "679f9a85-36a0-42a6-9519-435431749fc3"
+        },
+        {
+          "name": "maxChunks",
+          "location": "PARAMETER_LOCATION_BODY",
+          "value": 5
+        }
+      ],
       "dynamicParameters": [
         {
           "name": "query",
@@ -128,7 +145,7 @@ const selectedTools = [
         }
       ],
       "http": {
-        "baseUrlPattern": `${toolsBaseUrl}/rag/kblookup`,
+        "baseUrlPattern": "https://corpus-proxy.vercel.app/api/alpha/corpus/query",
         "httpMethod": "POST"
       }
     }
@@ -141,6 +158,6 @@ export const ULTRAVOX_CALL_CONFIG = {
     voice: 'Mark',
     temperature: 0.3,
     firstSpeaker: 'FIRST_SPEAKER_AGENT',
-    // selectedTools: selectedTools,
+    selectedTools: selectedTools,
     medium: { "twilio": {} }
 };
