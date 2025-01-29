@@ -18,5 +18,5 @@ CREATE TABLE students (
 
 -- Indices for quick lookups by student_code, email, and phone number
 CREATE INDEX idx_students_code ON students(student_code);
-CREATE INDEX idx_students_code ON students(email);
-CREATE INDEX idx_students_code ON students(phone);
+CREATE INDEX idx_students_email ON students(email);
+CREATE INDEX idx_students_phone ON students(phone);

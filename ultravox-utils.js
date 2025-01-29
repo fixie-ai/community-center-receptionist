@@ -4,8 +4,6 @@ import https from 'node:https';
 // Configuration
 const ULTRAVOX_API_KEY = process.env.ULTRAVOX_API_KEY;
 const ULTRAVOX_API_URL = 'https://api.ultravox.ai/api';
-const FIXIE_CORPUS_ID = process.env.FIXIE_CORPUS_ID;
-const FIXIE_API_KEY = process.env.FIXIE_API_KEY;
 
 // Create Ultravox call and get join URL
 export async function createUltravoxCall(callConfig) {
@@ -67,34 +65,4 @@ export async function getCallTranscript(callId) {
     console.error('Error fetching Ultravox messages:', error.message);
     throw error;
   }
-}
-
-export async function corpusLookup(query) {
-  const corpusUrl = `https://api.fixie.ai/api/v1/corpora/${FIXIE_CORPUS_ID}:query`;
-  const fixieAPIHeaders = {
-    "Authorization": `Bearer ${FIXIE_API_KEY}`,
-    "Content-Type": 'application/json'
-  };
-  const postBody = {
-    corpus_id: FIXIE_CORPUS_ID,
-    query: query,
-    max_chunks: 5 // hardcoding
-  }
-
-  const response = await fetch(corpusUrl, {
-    method: 'POST',
-    headers: fixieAPIHeaders,
-    body: JSON.stringify({ ...postBody }),
-  });
-
-  console.log('Fixie API response status:', response.status);
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Fixie API error:', errorText);
-    throw new Error(`Fixie API error: ${response.status}, ${errorText}`);
-  }
-
-  const data = await response.json();
-  return data;
 }

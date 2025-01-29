@@ -5,11 +5,12 @@ import { createUltravoxCall } from '../ultravox-utils.js';
 import { ULTRAVOX_CALL_CONFIG } from '../ultravox-config.js';
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const twilioNumber = process.env.TWILIO_PHONE_NUMBER;
 const destinationNumber = process.env.DESTINATION_PHONE_NUMBER;
 const router = express.Router();
 
 // Hack: Dictionary to store Twilio CallSid and Ultravox Call ID mapping
-// TODO replace this with something more durable
+// In production you will want to replace this with something more durable
 const activeCalls = new Map();
 
 async function transferActiveCall(ultravoxCallId) {
@@ -45,41 +46,72 @@ async function transferActiveCall(ultravoxCallId) {
     }
 }
 
+async function makeOutboundCall({ phoneNumber, systemPrompt, selectedTools }) {
+    try {
+      console.log('Creating outbound call...');
+      
+      const uvCallConfig = {
+        systemPrompt,
+        voice: 'Mark',
+        selectedTools,
+        temperature: 0.3,
+        firstSpeaker: 'FIRST_SPEAKER_USER',
+        medium: { "twilio": {} }
+      };
+  
+      const { joinUrl, callId } = await createUltravoxCall(uvCallConfig);
+      console.log('Got joinUrl:', joinUrl);
+  
+      const call = await client.calls.create({
+        twiml: `<Response><Connect><Stream url="${joinUrl}"/></Connect></Response>`,
+        to: phoneNumber,  // Consider hardcoding your own number here for local testing
+        from: twilioNumber
+      });
+  
+      // Store the mapping
+      activeCalls.set(callId, {
+        twilioCallSid: call.sid,
+        type: 'outbound'
+      });
+  
+      return { callId, twilioCallSid: call.sid };
+    } catch (error) {
+      console.error('Error making outbound call:', error);
+      throw error;
+    }
+}
+
 // Handle incoming calls from Twilio
 router.post('/incoming', async (req, res) => {
     try {
-        console.log('Incoming call received');
-        const twilioCallSid = req.body.CallSid;
-        console.log('Twilio CallSid:', twilioCallSid);
-
-        // Create the Ultravox call
-        const response = await createUltravoxCall(ULTRAVOX_CALL_CONFIG);
-
-        activeCalls.set(response.callId, {
-            twilioCallSid: twilioCallSid
-        });
-
-        const twiml = new twilio.twiml.VoiceResponse();
-        const connect = twiml.connect();
-        connect.stream({
-            url: response.joinUrl,
-            name: 'ultravox'
-        });
-
-        const twimlString = twiml.toString();
-        res.type('text/xml');
-        res.send(twimlString);
-
+      console.log('Incoming call received');
+      const twilioCallSid = req.body.CallSid;
+      
+      const response = await createUltravoxCall(ULTRAVOX_CALL_CONFIG);
+      
+      activeCalls.set(response.callId, {
+        twilioCallSid,
+        type: 'inbound'
+      });
+  
+      const twiml = new twilio.twiml.VoiceResponse();
+      const connect = twiml.connect();
+      connect.stream({
+        url: response.joinUrl,
+        name: 'ultravox'
+      });
+  
+      res.type('text/xml');
+      res.send(twiml.toString());
     } catch (error) {
-        console.error('Error handling incoming call:', error);
-        const twiml = new twilio.twiml.VoiceResponse();
-        twiml.say('Sorry, there was an error connecting your call.');
-        res.type('text/xml');
-        res.send(twiml.toString());
+      console.error('Error handling incoming call:', error);
+      const twiml = new twilio.twiml.VoiceResponse();
+      twiml.say('Sorry, there was an error connecting your call.');
+      res.type('text/xml');
+      res.send(twiml.toString());
     }
 });
-
-// Handle transfer of calls to another number
+  
 router.post('/transferCall', async (req, res) => {
     const { callId } = req.body;
     console.log(`Request to transfer call with callId: ${callId}`);
@@ -91,13 +123,25 @@ router.post('/transferCall', async (req, res) => {
         res.status(500).json(error);
     }
 });
-
-router.get('/active-calls', (req, res) => {
+  
+  router.get('/active-calls', (req, res) => {
     const calls = Array.from(activeCalls.entries()).map(([ultravoxCallId, data]) => ({
-        ultravoxCallId,
-        ...data
+      ultravoxCallId,
+      ...data
     }));
     res.json(calls);
+  });
+
+router.post('/makeOutboundCall', async (req, res) => {
+    try {
+        const { phoneNumber, systemPrompt, selectedTools } = req.body;
+        const result = await makeOutboundCall({ phoneNumber, systemPrompt, selectedTools });
+        res.json(result);
+    } catch (error) {
+        console.error('Error initiating outbound call:', error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
-export { router };
+export { router, makeOutboundCall };
+

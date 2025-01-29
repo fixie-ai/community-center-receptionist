@@ -1,0 +1,6 @@
+{
+  "watch": ["routes", "index.js", ".env"],
+  "ext": "js,json",
+  "ignore": ["node_modules/", "data/"],
+  "delay": "2"
+}

@@ -1,10 +1,6 @@
-const toolsBaseUrl = "https://01eb-73-24-191-197.ngrok-free.app"; // TODO ngrok URL here
+import 'dotenv/config';
 
-// Ultravox configuration
-
-// Basic prompt for receptionist
-// include information about the center
-// tools for lookupInfo() and transferCall()
+const toolsBaseUrl = process.env.TOOLS_BASE_URL; // set the ngrok URL in the .env file
 
 const SYSTEM_PROMPT = `
 Your name is Steve. You are a virtual, AI receptionist at CCC, a local community center.
@@ -32,45 +28,6 @@ The center has a large (2000 sq ft) outdoor area that can be used for weddings. 
 `;
 
 const selectedTools = [
-  //   {
-  //     "temporaryTool": {
-  //       "modelToolName": "checkAvailability",
-  //       "description": "Looks up available appointments on the calendar. Returns a list of available slots.",
-  //       "dynamicParameters": [
-  //           {
-  //             "name": "firstName",
-  //             "location": "PARAMETER_LOCATION_BODY",
-  //             "schema": {
-  //               "description": "The caller's first name",
-  //               "type": "string",
-  //             },
-  //             "required": true,
-  //           },
-  //           {
-  //               "name": "lastName",
-  //               "location": "PARAMETER_LOCATION_BODY",
-  //               "schema": {
-  //                 "description": "The caller's last name",
-  //                 "type": "string",
-  //               },
-  //               "required": true,
-  //           },
-  //           {
-  //               "name": "phoneNumber",
-  //               "location": "PARAMETER_LOCATION_BODY",
-  //               "schema": {
-  //                 "description": "The caller's phone number",
-  //                 "type": "string",
-  //               },
-  //               "required": true,
-  //           },
-  //         ],
-  //       "http": {
-  //           "baseUrlPattern": `${toolsBaseUrl}/cal/checkAvailability`,
-  //           "httpMethod": "POST",
-  //         },
-  //     },
-  // },
   {
     "temporaryTool": {
       "modelToolName": "transferCall",

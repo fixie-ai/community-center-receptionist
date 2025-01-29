@@ -4,11 +4,17 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "dependencies": {
+    "better-sqlite3": "^11.8.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "node-fetch": "^3.3.2",
+    "papaparse": "^5.5.2",
     "twilio": "^5.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }
