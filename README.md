@@ -7,7 +7,7 @@ The application uses Ultravox Realtime and Twilio. It handles both incoming and 
 This code was developed during a series of livestreams. The records are available:
 1. Session 1 (Thursday, January 23, 2025) [Recording](https://www.youtube.com/live/DocZRHNeAy4?si=utqrDuqHHlywxsIp&t=377)
 2. Session 2 (Friday, January 24, 2025) [Recording](https://www.youtube.com/watch?v=qwFOzo2-dMs&t=1435s)
-3. Session 3 (Thursday, January 30, 2025) [TODO](https://www.youtube.com/live/U2_g7jxE1Fk)
+3. Session 3 (Thursday, January 30, 2025) [Recording](https://www.youtube.com/watch?v=S2xeZv4mSXk)
 
 ## Highlights
 The application includes:

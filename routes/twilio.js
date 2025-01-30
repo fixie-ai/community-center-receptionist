@@ -132,6 +132,7 @@ router.post('/transferCall', async (req, res) => {
     res.json(calls);
   });
 
+// Note: not used for the agent...for testing purposes
 router.post('/makeOutboundCall', async (req, res) => {
     try {
         const { phoneNumber, systemPrompt, selectedTools } = req.body;
