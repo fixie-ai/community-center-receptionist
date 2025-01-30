@@ -91,6 +91,7 @@ ngrok http 3000
 - Student database lookup
 - Emergency contact management
 - Rescheduling capabilities
+- Provides a GitHub Action (dailyreminders.yml) that will run daily to send reminders
 
 ### Call Management Tools
 - Call transfer functionality
@@ -101,16 +102,18 @@ ngrok http 3000
 ## Project Structure
 
 ```
-├── index.js              # Main application entry point
-├── db.js                 # Database configuration and operations
-├── ultravox-config.js    # AI configuration and system prompts
-├── ultravox-utils.js     # Utility functions for Ultravox API
+├── index.js               # Main application entry point
+├── db.js                  # Database configuration and operations
+├── ultravox-config.js     # AI configuration and system prompts
+├── ultravox-utils.js      # Utility functions for Ultravox API
+├── .github/
+│   ├── dailyreminders.yml # Daily job to send reminders
 ├── routes/
-│   ├── twilio.js        # Call handling and Twilio integration
-│   ├── cal.js           # Calendar operations and reminders
-│   └── rag.js           # Knowledge base integration
+│   ├── twilio.js          # Call handling and Twilio integration
+│   ├── cal.js             # Calendar operations and reminders
+│   └── rag.js             # Knowledge base integration
 └── data/
-    └── students.csv      # Student information database
+    └── students.csv       # Student information database
 ```
 
 ## API Endpoints

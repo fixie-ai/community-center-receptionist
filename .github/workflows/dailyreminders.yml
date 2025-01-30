@@ -1,0 +1,28 @@
+name: Daily Lesson Reminders
+
+# Important: Update the URL in this workflow to your actual production URL
+# Replace https://<your_url>/cal/sendLessonReminders with your endpoint
+
+on:
+  schedule:
+    # Run at 9 AM Pacific Time every day (GH Actions use UTC time)
+    - cron: '0 16 * * *'
+  
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    
+    # Note: Our endpoint has not been secured. Secure it for production use via auth headers.
+    steps:
+      - name: Send lesson reminder requests
+        run: |
+          curl -X POST \
+            https://<your_url>/cal/sendLessonReminders \
+            -H "Content-Type: application/json"
+      
+      - name: Check for curl errors
+        if: ${{ failure() }}
+        run: |
+          echo "::error::Failed to send lesson reminders. Please check if your server is running and accessible."
